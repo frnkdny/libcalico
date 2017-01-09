@@ -175,6 +175,26 @@ class Workload(object):
         tcp_check = partial(self.execute, command)
         return tcp_check
 
+    def _get_tcp_async_function(self, ip):
+        """
+        Return a function to check tcp connectivity to another ip.
+
+        :param ip: The ip to check against.
+        :return: A partial function that can be executed to perform the check.
+        The function raises a CommandExecError exception if the check fails,
+        or returns the output of the check.
+        """
+        # test_string = "hello"
+        args = [
+            "/code/tcppingasync.sh",
+            ip,
+        ]
+
+        command = ' '.join(args)
+
+        tcp_check = partial(self.execute, command)
+        return tcp_check
+
     @debug_failures
     def check_can_tcp(self, ip, retries=0):
         """
@@ -191,6 +211,29 @@ class Workload(object):
         """
         try:
             retry_until_success(self._get_tcp_function(ip),
+                                retries=retries,
+                                ex_class=CommandExecError)
+        except CommandExecError:
+            return False
+
+        return True
+
+    @debug_failures
+    def check_can_tcp_async(self, ip, retries=0):
+        """
+        Execute a tcp check from this ip to the other ip.
+        Assert that a ip can connect to another ip.
+        Use retries to allow for convergence.
+
+        Use of this method assumes the network will be transitioning from a
+        state where the destination is currently unreachable.
+
+        :param ip:  The ip to check connectivity to.
+        :param retries: The number of retries.
+        :return: None.
+        """
+        try:
+            retry_until_success(self._get_tcp_async_function(ip),
                                 retries=retries,
                                 ex_class=CommandExecError)
         except CommandExecError:
