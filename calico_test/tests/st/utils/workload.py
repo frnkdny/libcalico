@@ -193,8 +193,8 @@ class Workload(object):
 
         command = ' '.join(args)
 
-        tcp_check = partial(self.execute, command)
-        return tcp_check
+        tcp_async_check = partial(self.execute, command)
+        return tcp_async_check
 
     @debug_failures
     def check_can_tcp(self, ip, retries=0):
