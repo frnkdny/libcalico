@@ -176,7 +176,7 @@ class Workload(object):
         tcp_check = partial(self.execute, command)
         return tcp_check
 
-    def _get_tcp_async_function(self, ip):
+    def _get_tcp_asym_function(self, ip):
         """
         Return a function to check tcp connectivity to another ip.
 
@@ -187,14 +187,14 @@ class Workload(object):
         """
         # test_string = "hello"
         args = [
-            "/code/tcppingasync.sh",
+            "/code/tcppingasym.sh",
             ip,
         ]
 
         command = ' '.join(args)
 
-        tcp_async_check = partial(self.execute, command)
-        return tcp_async_check
+        tcp_asym_check = partial(self.execute, command)
+        return tcp_asym_check
 
     @debug_failures
     def check_can_tcp(self, ip, retries=0):
@@ -220,7 +220,7 @@ class Workload(object):
         return True
 
     @debug_failures
-    def check_can_tcp_async(self, ip, retries=0):
+    def check_can_tcp_asym(self, ip, retries=0):
         """
         Execute a tcp check from this ip to the other ip.
         Assert that a ip can connect to another ip.
@@ -234,7 +234,7 @@ class Workload(object):
         :return: None.
         """
         try:
-            retry_until_success(self._get_tcp_async_function(ip),
+            retry_until_success(self._get_tcp_asym_function(ip),
                                 retries=retries,
                                 ex_class=CommandExecError)
         except CommandExecError:
